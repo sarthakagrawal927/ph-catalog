@@ -24,13 +24,8 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v5
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
       - name: Install ph-catalog
-        run: python -m pip install .
+        run: /opt/homebrew/bin/uv sync --frozen --no-dev
 
       - name: Configure persistent local state
         run: |
@@ -46,20 +41,24 @@ jobs:
             gh release download catalog-state \
               --pattern producthunt-full.parquet \
               --dir "$RUNNER_TEMP"
-            ph-catalog --database "$PH_DATABASE" restore-snapshot \
+            /opt/homebrew/bin/uv run --no-sync ph-catalog \
+              --database "$PH_DATABASE" restore-snapshot \
               --input "$RUNNER_TEMP/producthunt-full.parquet"
           fi
 
       - name: Refresh manifest and fetch new products
         run: |
-          ph-catalog --database "$PH_DATABASE" daily \
+          /opt/homebrew/bin/uv run --no-sync ph-catalog \
+            --database "$PH_DATABASE" daily \
             --limit 500 \
             --workers 2 \
             --rps 0.25 \
             --snapshot "$PH_SNAPSHOT"
 
       - name: Verify catalogue
-        run: ph-catalog --database "$PH_DATABASE" verify
+        run: |
+          /opt/homebrew/bin/uv run --no-sync ph-catalog \
+            --database "$PH_DATABASE" verify
 
       - name: Publish durable catalogue snapshot
         env:
