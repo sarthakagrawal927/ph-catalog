@@ -625,11 +625,13 @@ verification, and publishes a fresh Zstd Parquet catalogue to the private
 public sitemap boundary, so the repository-scoped workflow runs on the
 registered M1 Mac with labels `self-hosted`, `macOS`, `ARM64`, and `ph-catalog`.
 
-The working DuckDB stays in the Fleet workspace at
-`data/producthunt.duckdb`. The runner's disposable checkout lives elsewhere, so
-Git checkout cleanup cannot remove this ignored local state. If the database is
-unavailable, the workflow reconstructs fetched state from the private release
-snapshot:
+The working DuckDB stays in the Fleet workspace under `.state.nosync/`. The
+suffix keeps macOS File Provider/iCloud away from the live 800+ MB database;
+`data/producthunt.duckdb` and `snapshots/producthunt-full.parquet` can remain
+convenience paths for manual exports. The runner's disposable checkout lives
+elsewhere, so Git checkout cleanup cannot remove this ignored local state. If
+the database is unavailable, the workflow reconstructs fetched state from the
+private release snapshot:
 
 ```bash
 uv run ph-catalog restore-snapshot \

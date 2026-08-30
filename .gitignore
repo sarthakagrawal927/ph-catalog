@@ -12,8 +12,8 @@ logs/*
 !logs/.gitkeep
 snapshots/*
 !snapshots/.gitkeep
+.state.nosync/
 
 # Proxy files can contain credentials.
 proxies.txt
 *.proxy
-
