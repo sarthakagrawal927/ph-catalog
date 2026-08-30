@@ -13,6 +13,7 @@ logs/*
 snapshots/*
 !snapshots/.gitkeep
 .state.nosync/
+runtime
 
 # Proxy files can contain credentials.
 proxies.txt
