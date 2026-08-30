@@ -15,63 +15,56 @@ concurrency:
 
 jobs:
   refresh:
-    runs-on: ubuntu-latest
+    # Product Hunt denies GitHub-hosted runner IPs at the sitemap boundary.
+    # Keep this repository private and run the scheduled job on the registered M1 Mac.
+    runs-on: [self-hosted, macOS, ARM64, ph-catalog]
     timeout-minutes: 90
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Install ph-catalog
         run: python -m pip install .
 
-      - name: Restore working database cache
-        id: database-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: data/producthunt.duckdb
-          key: ph-catalog-db-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: |
-            ph-catalog-db-${{ runner.os }}-
+      - name: Configure persistent local state
+        run: |
+          mkdir -p "$HOME/.local/share/ph-catalog"
+          echo "PH_DATABASE=$HOME/.local/share/ph-catalog/producthunt.duckdb" >> "$GITHUB_ENV"
+          echo "PH_SNAPSHOT=$HOME/.local/share/ph-catalog/producthunt-full.parquet" >> "$GITHUB_ENV"
 
-      - name: Bootstrap from durable snapshot when cache is empty
-        if: steps.database-cache.outputs.cache-matched-key == ''
+      - name: Bootstrap from durable snapshot when local state is empty
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p snapshots
-          gh release download catalog-state \
-            --pattern producthunt-full.parquet \
-            --dir snapshots
-          ph-catalog restore-snapshot \
-            --input snapshots/producthunt-full.parquet
+          if [[ ! -f "$PH_DATABASE" ]]; then
+            gh release download catalog-state \
+              --pattern producthunt-full.parquet \
+              --dir "$RUNNER_TEMP"
+            ph-catalog --database "$PH_DATABASE" restore-snapshot \
+              --input "$RUNNER_TEMP/producthunt-full.parquet"
+          fi
 
       - name: Refresh manifest and fetch new products
         run: |
-          ph-catalog daily \
+          ph-catalog --database "$PH_DATABASE" daily \
             --limit 500 \
             --workers 2 \
             --rps 0.25 \
-            --snapshot snapshots/producthunt-full.parquet
+            --snapshot "$PH_SNAPSHOT"
 
       - name: Verify catalogue
-        run: ph-catalog verify
+        run: ph-catalog --database "$PH_DATABASE" verify
 
       - name: Publish durable catalogue snapshot
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload catalog-state \
-            snapshots/producthunt-full.parquet \
+            "$PH_SNAPSHOT" \
             --clobber
-
-      - name: Save working database cache
-        uses: actions/cache/save@v4
-        with:
-          path: data/producthunt.duckdb
-          key: ph-catalog-db-${{ runner.os }}-${{ github.run_id }}
