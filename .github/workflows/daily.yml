@@ -29,9 +29,10 @@ jobs:
 
       - name: Configure persistent local state
         run: |
-          mkdir -p "$HOME/.local/share/ph-catalog"
-          echo "PH_DATABASE=$HOME/.local/share/ph-catalog/producthunt.duckdb" >> "$GITHUB_ENV"
-          echo "PH_SNAPSHOT=$HOME/.local/share/ph-catalog/producthunt-full.parquet" >> "$GITHUB_ENV"
+          mkdir -p "/Users/assistant/Desktop/fleet/ph-catalog/data"
+          mkdir -p "/Users/assistant/Desktop/fleet/ph-catalog/snapshots"
+          echo "PH_DATABASE=/Users/assistant/Desktop/fleet/ph-catalog/data/producthunt.duckdb" >> "$GITHUB_ENV"
+          echo "PH_SNAPSHOT=/Users/assistant/Desktop/fleet/ph-catalog/snapshots/producthunt-full.parquet" >> "$GITHUB_ENV"
 
       - name: Bootstrap from durable snapshot when local state is empty
         env:
