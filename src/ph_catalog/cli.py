@@ -43,6 +43,7 @@ from ph_catalog.common_crawl_recovery import (
     CommonCrawlRecovery,
     CommonCrawlRecoveryConfig,
 )
+from ph_catalog.compact_export import export_compact_archive
 from ph_catalog.config import DEFAULT_SITEMAP_URLS, CrawlConfig
 from ph_catalog.crawler import Crawler
 from ph_catalog.database import CatalogDatabase
@@ -482,6 +483,12 @@ def _parser() -> argparse.ArgumentParser:
 
     snapshot = subparsers.add_parser("snapshot", help="Export fetched rows as Zstd Parquet.")
     snapshot.add_argument("--output", type=Path)
+
+    compact = subparsers.add_parser(
+        "compact-archive", help="Export useful catalogue data as a maximum-compression tar.zst."
+    )
+    compact.add_argument("--output", type=Path, required=True)
+    compact.add_argument("--compression-level", type=int, default=22)
 
     restore_snapshot = subparsers.add_parser(
         "restore-snapshot",
@@ -926,6 +933,16 @@ async def _run(args: argparse.Namespace) -> int:
         elif args.command == "snapshot":
             output = _snapshot_path(args.output)
             print(_json({"output": str(output), "exported": database.snapshot(output)}))
+        elif args.command == "compact-archive":
+            print(
+                _json(
+                    export_compact_archive(
+                        database,
+                        args.output,
+                        compression_level=args.compression_level,
+                    )
+                )
+            )
         elif args.command == "restore-snapshot":
             print(
                 _json(

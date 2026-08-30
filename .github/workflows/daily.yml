@@ -32,6 +32,7 @@ jobs:
           mkdir -p "/Users/assistant/.local/share/ph-catalog"
           echo "PH_DATABASE=/Users/assistant/.local/share/ph-catalog/producthunt.duckdb" >> "$GITHUB_ENV"
           echo "PH_SNAPSHOT=/Users/assistant/.local/share/ph-catalog/producthunt-full.parquet" >> "$GITHUB_ENV"
+          echo "PH_COMPACT_ARCHIVE=/Users/assistant/.local/share/ph-catalog/ph-catalog-full.tar.zst" >> "$GITHUB_ENV"
 
       - name: Bootstrap from durable snapshot when local state is empty
         env:
@@ -60,10 +61,18 @@ jobs:
           /opt/homebrew/bin/uv run --no-sync ph-catalog \
             --database "$PH_DATABASE" verify
 
+      - name: Build compact full-data archive
+        run: |
+          /opt/homebrew/bin/uv run --no-sync ph-catalog \
+            --database "$PH_DATABASE" compact-archive \
+            --output "$PH_COMPACT_ARCHIVE" \
+            --compression-level 22
+
       - name: Publish durable catalogue snapshot
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload catalog-state \
             "$PH_SNAPSHOT" \
+            "$PH_COMPACT_ARCHIVE" \
             --clobber

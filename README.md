@@ -620,10 +620,11 @@ relabeling sitemap `source_lastmod` or local `first_seen_at`.
 
 The GitHub Actions workflow in `.github/workflows/daily.yml` refreshes the
 manifest every day, fetches at most 500 new products at a global 0.25 RPS, runs
-verification, and publishes a fresh Zstd Parquet catalogue to the private
-`catalog-state` release. Product Hunt rejects GitHub-hosted runner IPs at the
-public sitemap boundary, so the repository-scoped workflow runs on the
-registered M1 Mac with labels `self-hosted`, `macOS`, `ARM64`, and `ph-catalog`.
+verification, and publishes both a fresh Zstd Parquet catalogue and the compact
+full-data archive to the private `catalog-state` release. Product Hunt rejects
+GitHub-hosted runner IPs at the public sitemap boundary, so the repository-scoped
+workflow runs on the registered M1 Mac with labels `self-hosted`, `macOS`,
+`ARM64`, and `ph-catalog`.
 
 All source and automation live in the Fleet workspace. The unattended runner's
 mutable state lives at `~/.local/share/ph-catalog/`, because a macOS LaunchAgent
@@ -639,9 +640,22 @@ uv run ph-catalog restore-snapshot \
   --input snapshots/producthunt-full.parquet
 ```
 
-The snapshot and DuckDB remain generated state and are not committed to Git.
-The release snapshot contains the seven catalogue fields, while retries,
-aliases, and operational timestamps remain in Fleet's persistent DuckDB.
+For a smallest practical archival copy, export the complete active catalogue,
+Product Hunt IDs, resolved launch relationships, aliases, and field provenance
+as a schema-described `tar.zst`. This intentionally omits crawler retries,
+errors, cursors, and other operational state:
+
+```bash
+uv run ph-catalog --database data/producthunt.duckdb compact-archive \
+  --output snapshots/ph-catalog-full.tar.zst \
+  --compression-level 22
+```
+
+The exports and DuckDB remain generated state and are not committed to Git. The
+Parquet release asset contains the seven catalogue fields. The compact archive
+also contains Product Hunt IDs, resolved launch relationships, aliases, and
+field provenance. Retry state and scan bookkeeping remain only in Fleet's
+persistent DuckDB.
 
 ## Low-rate daily fallback
 
