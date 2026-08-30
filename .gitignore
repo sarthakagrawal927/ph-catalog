@@ -1,0 +1,19 @@
+.DS_Store
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Local crawl output. Keep only empty-directory sentinels in source control.
+data/*
+!data/.gitkeep
+logs/*
+!logs/.gitkeep
+snapshots/*
+!snapshots/.gitkeep
+
+# Proxy files can contain credentials.
+proxies.txt
+*.proxy
+

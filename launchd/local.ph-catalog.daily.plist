@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>local.ph-catalog.daily</string>
+  <key>ProgramArguments</key>
+  <array>
+      <string>/Users/assistant/Desktop/fleet/ph-catalog/.venv/bin/ph-catalog</string>
+      <string>--database</string>
+      <string>/Users/assistant/Desktop/fleet/ph-catalog/data/producthunt.duckdb</string>
+      <string>--log</string>
+      <string>/Users/assistant/Desktop/fleet/ph-catalog/logs/crawl.jsonl</string>
+      <string>daily</string>
+      <string>--limit</string>
+      <string>500</string>
+      <string>--workers</string>
+      <string>2</string>
+      <string>--rps</string>
+      <string>0.25</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/assistant/Desktop/fleet/ph-catalog</string>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>3</integer>
+    <key>Minute</key><integer>15</integer>
+  </dict>
+  <key>ProcessType</key><string>Background</string>
+  <key>StandardOutPath</key><string>/Users/assistant/Desktop/fleet/ph-catalog/logs/launchd.out.log</string>
+  <key>StandardErrorPath</key><string>/Users/assistant/Desktop/fleet/ph-catalog/logs/launchd.err.log</string>
+</dict>
+</plist>
