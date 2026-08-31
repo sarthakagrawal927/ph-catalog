@@ -58,6 +58,21 @@ ready-to-run queries are in
 The complete release-asset download, verification, and rebuild procedure is in
 [`docs/machine-handoff.md`](docs/machine-handoff.md).
 
+## Analytics UI
+
+Serve the standalone analytics mart through the read-only local UI/API:
+
+```bash
+uv run python tools/serve_analytics.py \
+  --database data/analytics/catalog-analytics.duckdb \
+  --port 8765
+```
+
+The UI provides live aggregate dashboards, relative cohort trends, and
+parameterized search and evidence drill-down across the full catalogue. It
+binds to `127.0.0.1` by default and never exposes arbitrary SQL or the database
+file. See [`site/README.md`](site/README.md) for temporary tunnel usage.
+
 ## Local transformer entity extraction
 
 The optional NER pipeline extracts concrete analytical attributes without an

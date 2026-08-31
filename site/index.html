@@ -3,208 +3,130 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="An evidence-first view of the local Product Hunt catalogue."
-    />
-    <title>PH Catalogue Intelligence</title>
+    <meta name="description" content="Private analytics for the local Product Hunt catalogue." />
+    <title>Atlas — Product Catalogue Analytics</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="topbar">
-      <a class="brand" href="#overview" data-tab-link="overview" aria-label="PH Catalogue home">
-        <span class="brand-mark">PH</span>
-        <span>Catalogue Intelligence</span>
-      </a>
-      <nav class="nav-tabs" aria-label="Primary navigation">
-        <button class="nav-tab is-active" type="button" data-tab="overview">Overview</button>
-        <button class="nav-tab" type="button" data-tab="catalogue">Catalogue</button>
-        <button class="nav-tab" type="button" data-tab="pipeline">Pipeline</button>
-      </nav>
-      <span class="snapshot">Snapshot · 31 Aug 2026</span>
-    </header>
-
-    <main>
-      <section class="page is-active" id="page-overview" data-page="overview">
-        <div class="hero">
-          <div>
-            <p class="eyebrow">Local, queryable, evidence-first</p>
-            <h1>See the shape of 574,752 products now.</h1>
-            <p class="hero-copy">
-              Useful catalogue intelligence from the data already collected—without waiting for
-              a universal taxonomy, another crawl, or hundreds of thousands of LLM calls.
-            </p>
-          </div>
-          <button class="primary-action" type="button" data-open-catalogue>
-            Explore sample products <span aria-hidden="true">→</span>
-          </button>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#overview" data-route="overview" aria-label="Atlas overview">
+          <span class="brand-mark"><i></i><i></i><i></i></span>
+          <span><strong>Atlas</strong><small>Catalogue intelligence</small></span>
+        </a>
+        <nav aria-label="Analytics sections">
+          <button class="nav-item is-active" data-route="overview" type="button"><span>01</span>Overview</button>
+          <button class="nav-item" data-route="trends" type="button"><span>02</span>Trends</button>
+          <button class="nav-item" data-route="explore" type="button"><span>03</span>Explore products</button>
+          <button class="nav-item" data-route="quality" type="button"><span>04</span>Data quality</button>
+        </nav>
+        <div class="sidebar-foot">
+          <div class="live-dot"><i></i> Live local mart</div>
+          <p>Snapshot<br /><strong>31 August 2026</strong></p>
         </div>
+      </aside>
 
-        <section class="metric-grid" aria-label="Catalogue totals">
-          <article class="metric-card metric-dark">
-            <span class="metric-label">Complete products</span>
-            <strong>574,752</strong>
-            <span>Deduplicated active catalogue</span>
-          </article>
-          <article class="metric-card">
-            <span class="metric-label">Launch relationships</span>
-            <strong>709,644</strong>
-            <span>Across 547,794 products</span>
-          </article>
-          <article class="metric-card">
-            <span class="metric-label">Destination hosts</span>
-            <strong>406,923</strong>
-            <span>398,589 appear only once</span>
-          </article>
-          <article class="metric-card">
-            <span class="metric-label">Trusted labels</span>
-            <strong>247,788</strong>
-            <span>43.1% precision-first coverage</span>
-          </article>
-        </section>
+      <main>
+        <header class="topbar">
+          <button class="menu-button" type="button" aria-label="Toggle navigation">☰</button>
+          <p id="page-context">Internal analytics / Overview</p>
+          <div class="topbar-state"><span></span>Read-only</div>
+        </header>
 
-        <div class="overview-grid">
-          <section class="panel label-panel">
-            <div class="section-heading">
-              <div>
-                <p class="eyebrow">Current analytical layer</p>
-                <h2>Trusted label coverage</h2>
-              </div>
-              <span class="quiet-note">18 retained themes</span>
-            </div>
-            <div id="label-bars" class="label-bars" aria-label="Products per trusted label"></div>
-          </section>
-
-          <aside class="panel coverage-panel">
+        <section class="page is-active" data-page="overview">
+          <div class="page-heading overview-heading">
             <div>
-              <p class="eyebrow">Source taxonomy</p>
-              <h2>Original category coverage</h2>
+              <p class="eyebrow">The complete local catalogue</p>
+              <h1>Half a million products.<br /><em>One analytical surface.</em></h1>
+              <p class="lede">Explore the supply, language, distribution, and launch structure of Product Hunt without inventing dates or popularity signals.</p>
             </div>
-            <div class="donut-wrap">
-              <div
-                class="coverage-donut"
-                role="img"
-                aria-label="16.2 percent of products have Product Hunt categories"
-              >
-                <div><strong>16.2%</strong><span>categorized</span></div>
-              </div>
-              <dl class="coverage-list">
-                <div><dt>Products</dt><dd>93,184</dd></div>
-                <div><dt>Distinct categories</dt><dd>540</dd></div>
-                <div><dt>Top category</dt><dd>Productivity</dd></div>
-              </dl>
-            </div>
-            <p class="panel-note">
-              Product Hunt categories remain untouched source evidence. A future primary category
-              will be one consistent analytical field outside the labels array.
-            </p>
-          </aside>
-        </div>
-
-        <section class="panel analysis-panel">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Available immediately</p>
-              <h2>What this dataset can answer today</h2>
-            </div>
+            <button class="round-action" data-go-explore type="button" aria-label="Explore products">↗</button>
           </div>
-          <div class="analysis-grid">
-            <article><span>01</span><h3>Market composition</h3><p>Theme size, category overlap, concentration, and the classified long tail.</p></article>
-            <article><span>02</span><h3>Launch structure</h3><p>Single launches, relaunches, product families, and unusual launch density.</p></article>
-            <article><span>03</span><h3>Distribution</h3><p>First-party sites, app stores, GitHub, shared hosts, and deleted destinations.</p></article>
-            <article><span>04</span><h3>Language shifts</h3><p>Keywords, positioning, AI mentions, and topic movement across ID cohorts.</p></article>
-            <article><span>05</span><h3>Discovery bias</h3><p>Which products surface through search, categories, collections, or only IDs.</p></article>
-            <article><span>06</span><h3>Data quality</h3><p>Boilerplate, copied descriptions, contact spam, aliases, and anomalies.</p></article>
+
+          <div class="metric-grid" id="metric-grid" aria-label="Core catalogue metrics">
+            <article class="metric-card skeleton"></article><article class="metric-card skeleton"></article><article class="metric-card skeleton"></article><article class="metric-card skeleton"></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="panel span-7">
+              <div class="panel-heading"><div><p class="eyebrow">Broad analytical labels</p><h2>Market composition</h2></div><span>Precision-first</span></div>
+              <div class="rank-chart" id="label-chart"></div>
+            </section>
+            <section class="panel span-5 dark-panel">
+              <div class="panel-heading"><div><p class="eyebrow">Evidence coverage</p><h2>What we actually know</h2></div></div>
+              <div class="coverage-rings" id="coverage-rings"></div>
+              <p class="panel-note">Coverage layers overlap. Missing evidence stays missing; it is never filled with a guess.</p>
+            </section>
+            <section class="panel span-8">
+              <div class="panel-heading"><div><p class="eyebrow">Concrete extracted evidence</p><h2>Entity layer</h2></div><span>115,504 assignments</span></div>
+              <div class="entity-type-grid" id="entity-types"></div>
+            </section>
+            <section class="panel span-4">
+              <div class="panel-heading"><div><p class="eyebrow">Destination concentration</p><h2>Largest hosts</h2></div></div>
+              <div class="domain-list" id="domain-list"></div>
+            </section>
+            <section class="panel span-12">
+              <div class="panel-heading"><div><p class="eyebrow">Frequently paired labels</p><h2>Where markets overlap</h2></div><span>Products carrying both labels</span></div>
+              <div class="pair-grid" id="label-pairs"></div>
+            </section>
           </div>
         </section>
 
-        <aside class="truth-strip">
-          <strong>Known boundary</strong>
-          <span>
-            The portable archive does not contain verified launch dates, votes, or comment counts.
-            Product and post IDs support relative ordering, not calendar claims.
-          </span>
-        </aside>
-      </section>
-
-      <section class="page" id="page-catalogue" data-page="catalogue" hidden>
-        <div class="catalogue-heading">
-          <div>
-            <p class="eyebrow">Representative records</p>
-            <h1>Catalogue explorer</h1>
-            <p>Ten real products illustrate the complete record and current analytical fields.</p>
+        <section class="page" data-page="trends" hidden>
+          <div class="page-heading compact-heading">
+            <div><p class="eyebrow">Relative launch-order analysis</p><h1>Movement without <em>fake dates.</em></h1><p class="lede">Twenty equal-sized cohorts ordered by the earliest mapped Product Hunt post ID. Cohort 1 is earlier; cohort 20 is later. These are not calendar periods.</p></div>
           </div>
-          <label class="search-field">
-            <span>Search sample</span>
-            <input id="product-search" type="search" placeholder="Name, label, category…" />
-          </label>
-        </div>
-
-        <div class="catalogue-layout">
-          <section class="product-list-wrap" aria-label="Products">
-            <div id="product-list" class="product-list"></div>
-            <p id="empty-products" class="empty-state" hidden>No products match that search.</p>
+          <section class="panel cohort-panel">
+            <div class="panel-heading"><div><p class="eyebrow">Coverage through catalogue order</p><h2>Evidence availability by cohort</h2></div><div class="chart-legend"><span class="legend-label"></span>Labels <span class="legend-entity"></span>Entities <span class="legend-category"></span>PH categories</div></div>
+            <div id="cohort-chart" class="line-chart"></div>
           </section>
-          <article id="product-detail" class="product-detail" aria-live="polite"></article>
-        </div>
-      </section>
+          <div class="trend-grid">
+            <section class="panel"><div class="panel-heading"><div><p class="eyebrow">Broad themes</p><h2>Label share shift</h2></div><span>Early vs later cohorts</span></div><div id="label-trends" class="shift-list"></div></section>
+            <section class="panel"><div class="panel-heading"><div><p class="eyebrow">Concrete mentions</p><h2>Rising entities</h2></div><span>Minimum 100 products</span></div><div id="entity-risers" class="trend-list"></div></section>
+            <section class="panel"><div class="panel-heading"><div><p class="eyebrow">Concrete mentions</p><h2>Falling entities</h2></div><span>Minimum 100 products</span></div><div id="entity-fallers" class="trend-list"></div></section>
+          </div>
+          <aside class="caveat"><strong>Interpretation rule</strong><p>A higher line or growth index means the term appears more often in that relative slice of catalogue copy. It does not prove adoption, revenue, popularity, or calendar growth.</p></aside>
+        </section>
 
-      <section class="page" id="page-pipeline" data-page="pipeline" hidden>
-        <div class="pipeline-hero">
-          <p class="eyebrow">Optional enrichment plan</p>
-          <h1>Improve confidence in layers—not one enormous leap.</h1>
-          <p>
-            The existing catalogue remains usable at every stage. Each expensive step is routed
-            only to products that still need it.
-          </p>
-        </div>
+        <section class="page explore-page" data-page="explore" hidden>
+          <div class="page-heading compact-heading"><div><p class="eyebrow">574,752 complete records</p><h1>Find the product,<br /><em>then inspect the evidence.</em></h1></div></div>
+          <form class="search-controls" id="search-form">
+            <label class="search-box"><span>Search</span><input id="product-search" type="search" placeholder="Name, slug, tagline, or domain" autocomplete="off" /></label>
+            <label><span>Broad label</span><select id="label-filter"><option value="">All labels</option></select></label>
+            <label><span>Entity type</span><select id="entity-filter"><option value="">All entities</option></select></label>
+            <label><span>Sort</span><select id="sort-filter"><option value="recent">Relative recency</option><option value="relaunches">Most launches</option><option value="name">Name A–Z</option></select></label>
+          </form>
+          <div class="results-meta"><p id="result-count">Loading products…</p><p>Dates deliberately omitted</p></div>
+          <div class="explorer-layout">
+            <section><div id="product-list" class="product-list"></div><button id="load-more" class="load-more" type="button">Load more</button></section>
+            <aside id="product-detail" class="product-detail"><div class="detail-placeholder">Select a product to inspect its full record.</div></aside>
+          </div>
+        </section>
 
-        <ol class="pipeline-list">
-          <li class="pipeline-step is-ready">
-            <span class="step-index">01</span>
-            <div><span class="step-state">Ready now</span><h2>Existing-data baseline</h2><p>Ship catalogue, domain, launch, text, quality, and discovery analytics from DuckDB.</p></div>
-            <strong>0 network calls</strong>
-          </li>
-          <li class="pipeline-step is-ready">
-            <span class="step-index">02</span>
-            <div><span class="step-state">Validated</span><h2>Concrete NER labels</h2><p>Run local GLiNER shards for technology, platform, audience, format, OS, and hardware evidence.</p></div>
-            <strong>≈ 3.5 hours on M1</strong>
-          </li>
-          <li class="pipeline-step">
-            <span class="step-index">03</span>
-            <div><span class="step-state">Next</span><h2>One primary category</h2><p>Train a fixed-taxonomy classifier from mapped Product Hunt categories; abstain when uncertain.</p></div>
-            <strong>Local inference</strong>
-          </li>
-          <li class="pipeline-step">
-            <span class="step-index">04</span>
-            <div><span class="step-state">Selective</span><h2>Website evidence</h2><p>Fetch public homepage metadata only for low-confidence, conflicting, or boilerplate records.</p></div>
-            <strong>Bounded requests</strong>
-          </li>
-          <li class="pipeline-step">
-            <span class="step-index">05</span>
-            <div><span class="step-state">Fallback</span><h2>Local 8B / 27B review</h2><p>Batch only unresolved products, emit structured labels, and preserve evidence and confidence.</p></div>
-            <strong>No API required</strong>
-          </li>
-          <li class="pipeline-step">
-            <span class="step-index">06</span>
-            <div><span class="step-state">Gate</span><h2>Independent validation</h2><p>Fresh random and stratified audits before promoting any taxonomy version into analytics.</p></div>
-            <strong>Versioned outputs</strong>
-          </li>
-        </ol>
+        <section class="page" data-page="quality" hidden>
+          <div class="page-heading compact-heading"><div><p class="eyebrow">Evidence before confidence</p><h1>What is present,<br /><em>and what is not.</em></h1><p class="lede">The catalogue separates source fields, derived labels, extracted mentions, and relative-order evidence so every claim has a visible boundary.</p></div></div>
+          <div class="quality-grid">
+            <article class="quality-card accent-card"><span>01</span><h2>Complete product text</h2><strong>574,752 / 574,752</strong><p>Every retained record has a name, tagline, and description. Website-derived recovery provenance remains stored.</p></article>
+            <article class="quality-card"><span>02</span><h2>Original categories</h2><strong>199,654 assignments</strong><p>Product Hunt categories remain unchanged and separate. Products without them are explicitly uncategorized.</p></article>
+            <article class="quality-card"><span>03</span><h2>Broad labels</h2><strong>281,228 trusted</strong><p>Precision-oriented analytical themes. They are not presented as Product Hunt source data or a final primary category.</p></article>
+            <article class="quality-card"><span>04</span><h2>NER entities</h2><strong>97% type precision</strong><p>100 manually reviewed assignments, stratified across types and the rare tail; 100% were relevant mentions.</p></article>
+          </div>
+          <section class="boundary-table panel">
+            <div class="panel-heading"><div><p class="eyebrow">Interpretation contract</p><h2>Field-by-field boundaries</h2></div></div>
+            <div class="boundary-row"><strong>Tagline / description</strong><span>Complete catalogue text with field-level provenance.</span><em>Descriptive, not independently verified.</em></div>
+            <div class="boundary-row"><strong>Website URL</strong><span>External destination when recoverable.</span><em>Host counts are exact hosts, not companies.</em></div>
+            <div class="boundary-row"><strong>Product Hunt categories</strong><span>Original source taxonomy, unchanged.</span><em>Available on 16.2% of products.</em></div>
+            <div class="boundary-row"><strong>Trusted labels</strong><span>Derived broad analytical themes.</span><em>43.1% precision-first coverage.</em></div>
+            <div class="boundary-row"><strong>Entities</strong><span>Concrete roles, industries, technologies, platforms, formats, OSes, and hardware.</span><em>Mention-level evidence, not a full taxonomy.</em></div>
+            <div class="boundary-row"><strong>Launch order</strong><span>Earliest and latest mapped post IDs.</span><em>Relative order only—never calendar dates.</em></div>
+            <div class="boundary-row unavailable"><strong>Votes / comments</strong><span>Not collected.</span><em>No popularity claims.</em></div>
+          </section>
+        </section>
 
-        <aside class="pipeline-command">
-          <span>Full local NER command</span>
-          <code>uv run --extra ner python tools/ner_enrich.py --source producthunt-full.parquet --output-dir data/ner-v1</code>
-        </aside>
-      </section>
-    </main>
-
-    <footer>
-      <span>PH Catalogue · private analytical prototype</span>
-      <span>Evidence first · uncertainty preserved</span>
-    </footer>
-
-    <script src="data.js"></script>
+        <footer><span>Atlas / PH Catalogue</span><span>Private analytical preview · read-only</span></footer>
+      </main>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <script src="app.js"></script>
   </body>
 </html>
