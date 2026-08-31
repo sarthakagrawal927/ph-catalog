@@ -26,6 +26,19 @@ uv run ph-catalog init
 The database is `data/producthunt.duckdb`. DuckDB compresses its storage, and
 snapshots contain only the seven catalogue fields in Zstd-compressed Parquet.
 
+## Catalogue intelligence prototype
+
+The dependency-free static prototype under [`site/`](site/) presents the current
+catalogue metrics, representative product records, and the staged enrichment
+plan:
+
+```bash
+python3 -m http.server 8080 --directory site
+```
+
+Open <http://localhost:8080>. The full operating plan is documented in
+[`docs/analytics-pipeline-plan.md`](docs/analytics-pipeline-plan.md).
+
 ## Local transformer entity extraction
 
 The optional NER pipeline extracts concrete analytical attributes without an

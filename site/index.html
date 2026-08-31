@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="An evidence-first view of the local Product Hunt catalogue."
+    />
+    <title>PH Catalogue Intelligence</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#overview" data-tab-link="overview" aria-label="PH Catalogue home">
+        <span class="brand-mark">PH</span>
+        <span>Catalogue Intelligence</span>
+      </a>
+      <nav class="nav-tabs" aria-label="Primary navigation">
+        <button class="nav-tab is-active" type="button" data-tab="overview">Overview</button>
+        <button class="nav-tab" type="button" data-tab="catalogue">Catalogue</button>
+        <button class="nav-tab" type="button" data-tab="pipeline">Pipeline</button>
+      </nav>
+      <span class="snapshot">Snapshot · 31 Aug 2026</span>
+    </header>
+
+    <main>
+      <section class="page is-active" id="page-overview" data-page="overview">
+        <div class="hero">
+          <div>
+            <p class="eyebrow">Local, queryable, evidence-first</p>
+            <h1>See the shape of 574,752 products now.</h1>
+            <p class="hero-copy">
+              Useful catalogue intelligence from the data already collected—without waiting for
+              a universal taxonomy, another crawl, or hundreds of thousands of LLM calls.
+            </p>
+          </div>
+          <button class="primary-action" type="button" data-open-catalogue>
+            Explore sample products <span aria-hidden="true">→</span>
+          </button>
+        </div>
+
+        <section class="metric-grid" aria-label="Catalogue totals">
+          <article class="metric-card metric-dark">
+            <span class="metric-label">Complete products</span>
+            <strong>574,752</strong>
+            <span>Deduplicated active catalogue</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Launch relationships</span>
+            <strong>709,644</strong>
+            <span>Across 547,794 products</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Destination hosts</span>
+            <strong>406,923</strong>
+            <span>398,589 appear only once</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Trusted labels</span>
+            <strong>247,788</strong>
+            <span>43.1% precision-first coverage</span>
+          </article>
+        </section>
+
+        <div class="overview-grid">
+          <section class="panel label-panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Current analytical layer</p>
+                <h2>Trusted label coverage</h2>
+              </div>
+              <span class="quiet-note">18 retained themes</span>
+            </div>
+            <div id="label-bars" class="label-bars" aria-label="Products per trusted label"></div>
+          </section>
+
+          <aside class="panel coverage-panel">
+            <div>
+              <p class="eyebrow">Source taxonomy</p>
+              <h2>Original category coverage</h2>
+            </div>
+            <div class="donut-wrap">
+              <div
+                class="coverage-donut"
+                role="img"
+                aria-label="16.2 percent of products have Product Hunt categories"
+              >
+                <div><strong>16.2%</strong><span>categorized</span></div>
+              </div>
+              <dl class="coverage-list">
+                <div><dt>Products</dt><dd>93,184</dd></div>
+                <div><dt>Distinct categories</dt><dd>540</dd></div>
+                <div><dt>Top category</dt><dd>Productivity</dd></div>
+              </dl>
+            </div>
+            <p class="panel-note">
+              Product Hunt categories remain untouched source evidence. A future primary category
+              will be one consistent analytical field outside the labels array.
+            </p>
+          </aside>
+        </div>
+
+        <section class="panel analysis-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Available immediately</p>
+              <h2>What this dataset can answer today</h2>
+            </div>
+          </div>
+          <div class="analysis-grid">
+            <article><span>01</span><h3>Market composition</h3><p>Theme size, category overlap, concentration, and the classified long tail.</p></article>
+            <article><span>02</span><h3>Launch structure</h3><p>Single launches, relaunches, product families, and unusual launch density.</p></article>
+            <article><span>03</span><h3>Distribution</h3><p>First-party sites, app stores, GitHub, shared hosts, and deleted destinations.</p></article>
+            <article><span>04</span><h3>Language shifts</h3><p>Keywords, positioning, AI mentions, and topic movement across ID cohorts.</p></article>
+            <article><span>05</span><h3>Discovery bias</h3><p>Which products surface through search, categories, collections, or only IDs.</p></article>
+            <article><span>06</span><h3>Data quality</h3><p>Boilerplate, copied descriptions, contact spam, aliases, and anomalies.</p></article>
+          </div>
+        </section>
+
+        <aside class="truth-strip">
+          <strong>Known boundary</strong>
+          <span>
+            The portable archive does not contain verified launch dates, votes, or comment counts.
+            Product and post IDs support relative ordering, not calendar claims.
+          </span>
+        </aside>
+      </section>
+
+      <section class="page" id="page-catalogue" data-page="catalogue" hidden>
+        <div class="catalogue-heading">
+          <div>
+            <p class="eyebrow">Representative records</p>
+            <h1>Catalogue explorer</h1>
+            <p>Ten real products illustrate the complete record and current analytical fields.</p>
+          </div>
+          <label class="search-field">
+            <span>Search sample</span>
+            <input id="product-search" type="search" placeholder="Name, label, category…" />
+          </label>
+        </div>
+
+        <div class="catalogue-layout">
+          <section class="product-list-wrap" aria-label="Products">
+            <div id="product-list" class="product-list"></div>
+            <p id="empty-products" class="empty-state" hidden>No products match that search.</p>
+          </section>
+          <article id="product-detail" class="product-detail" aria-live="polite"></article>
+        </div>
+      </section>
+
+      <section class="page" id="page-pipeline" data-page="pipeline" hidden>
+        <div class="pipeline-hero">
+          <p class="eyebrow">Optional enrichment plan</p>
+          <h1>Improve confidence in layers—not one enormous leap.</h1>
+          <p>
+            The existing catalogue remains usable at every stage. Each expensive step is routed
+            only to products that still need it.
+          </p>
+        </div>
+
+        <ol class="pipeline-list">
+          <li class="pipeline-step is-ready">
+            <span class="step-index">01</span>
+            <div><span class="step-state">Ready now</span><h2>Existing-data baseline</h2><p>Ship catalogue, domain, launch, text, quality, and discovery analytics from DuckDB.</p></div>
+            <strong>0 network calls</strong>
+          </li>
+          <li class="pipeline-step is-ready">
+            <span class="step-index">02</span>
+            <div><span class="step-state">Validated</span><h2>Concrete NER labels</h2><p>Run local GLiNER shards for technology, platform, audience, format, OS, and hardware evidence.</p></div>
+            <strong>≈ 3.5 hours on M1</strong>
+          </li>
+          <li class="pipeline-step">
+            <span class="step-index">03</span>
+            <div><span class="step-state">Next</span><h2>One primary category</h2><p>Train a fixed-taxonomy classifier from mapped Product Hunt categories; abstain when uncertain.</p></div>
+            <strong>Local inference</strong>
+          </li>
+          <li class="pipeline-step">
+            <span class="step-index">04</span>
+            <div><span class="step-state">Selective</span><h2>Website evidence</h2><p>Fetch public homepage metadata only for low-confidence, conflicting, or boilerplate records.</p></div>
+            <strong>Bounded requests</strong>
+          </li>
+          <li class="pipeline-step">
+            <span class="step-index">05</span>
+            <div><span class="step-state">Fallback</span><h2>Local 8B / 27B review</h2><p>Batch only unresolved products, emit structured labels, and preserve evidence and confidence.</p></div>
+            <strong>No API required</strong>
+          </li>
+          <li class="pipeline-step">
+            <span class="step-index">06</span>
+            <div><span class="step-state">Gate</span><h2>Independent validation</h2><p>Fresh random and stratified audits before promoting any taxonomy version into analytics.</p></div>
+            <strong>Versioned outputs</strong>
+          </li>
+        </ol>
+
+        <aside class="pipeline-command">
+          <span>Full local NER command</span>
+          <code>uv run --extra ner python tools/ner_enrich.py --source producthunt-full.parquet --output-dir data/ner-v1</code>
+        </aside>
+      </section>
+    </main>
+
+    <footer>
+      <span>PH Catalogue · private analytical prototype</span>
+      <span>Evidence first · uncertainty preserved</span>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
