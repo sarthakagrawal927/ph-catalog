@@ -43,7 +43,7 @@ Rules:
 
 ## Stage 0 — Existing-data product
 
-Status: ready.
+Status: implemented as a reproducible DuckDB analytics mart.
 
 Ship without new crawling or model inference:
 
@@ -55,6 +55,32 @@ Ship without new crawling or model inference:
 - Text clusters, keyword prevalence, boilerplate, spam, and anomaly detection.
 - Search/category/collection discovery-surface coverage.
 - Static browsing pages and individual product details.
+
+Build the internal mart from the rich crawler database and the audited trusted
+label file:
+
+```bash
+uv run python tools/build_analytics.py \
+  --catalog-db data/producthunt.duckdb \
+  --trusted-labels data/analytics/product-tags-v1-trusted.parquet \
+  --output data/analytics/catalog-analytics.duckdb \
+  --summary-output data/analytics/catalog-analytics-summary.json
+```
+
+After the full NER output passes a fresh audit, include it without changing the
+base catalogue by adding:
+
+```text
+--entities data/ner-v1/product-entities.parquet
+```
+
+The mart includes `product_facts`, normalized category/label/entity/launch
+tables, domain and relaunch summaries, co-occurrences, and 20 relative launch
+cohorts. `label_relative_trends` compares the earliest and latest quarter of
+products by first post ID and reports both raw catalogue share and share among
+products that received any trusted label, controlling for changing label
+coverage. It is useful for directional exploration but is explicitly not a
+calendar-time series.
 
 Boundaries:
 

@@ -39,6 +39,23 @@ python3 -m http.server 8080 --directory site
 Open <http://localhost:8080>. The full operating plan is documented in
 [`docs/analytics-pipeline-plan.md`](docs/analytics-pipeline-plan.md).
 
+Generate the standalone internal analytics mart from the rich local DuckDB and
+the audited trusted labels:
+
+```bash
+uv run python tools/build_analytics.py \
+  --catalog-db data/producthunt.duckdb \
+  --trusted-labels data/analytics/product-tags-v1-trusted.parquet \
+  --output data/analytics/catalog-analytics.duckdb \
+  --summary-output data/analytics/catalog-analytics-summary.json
+```
+
+The output contains normalized product, category, label, domain, and launch
+tables plus relative launch-order cohorts. Post IDs are used only for ordering;
+they are never presented as dates. Table definitions, initial signals, and
+ready-to-run queries are in
+[`docs/internal-analytics.md`](docs/internal-analytics.md).
+
 ## Local transformer entity extraction
 
 The optional NER pipeline extracts concrete analytical attributes without an
