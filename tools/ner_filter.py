@@ -10,7 +10,7 @@ from pathlib import Path
 
 import duckdb
 
-from ph_catalog.ner_rules import classify_entity
+from ph_catalog.ner_rules import PRECISION_FILTER_VERSION, classify_entity
 
 
 def main() -> None:
@@ -64,7 +64,7 @@ def main() -> None:
                 "source_span": entity_text,
                 "score": float(score),
                 "support_products": int(support_products),
-                "method": "gliner_small_v2_1+precision_filters_v1",
+                "method": f"gliner_small_v2_1+precision_filters_{PRECISION_FILTER_VERSION}",
             }
         )
     output.sort(key=lambda row: (row["slug"], row["entity_type"], row["canonical_value"]))
@@ -80,6 +80,7 @@ def main() -> None:
         "retained_assignments": len(output),
         "retained_products": len({row["slug"] for row in output}),
         "parts": len(parts),
+        "precision_filter_version": PRECISION_FILTER_VERSION,
         "output": str(args.output),
     }
     print(json.dumps(report, indent=2))

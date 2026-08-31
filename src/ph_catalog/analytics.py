@@ -250,6 +250,18 @@ def build_analytics(
         )
         connection.execute(
             """
+            CREATE TABLE entity_type_stats AS
+            SELECT entity_type, count(*) AS assignments,
+                   count(DISTINCT slug) AS products,
+                   count(DISTINCT canonical_value) AS distinct_values,
+                   avg(score) AS average_score
+            FROM product_entities
+            GROUP BY entity_type
+            ORDER BY products DESC, entity_type
+            """
+        )
+        connection.execute(
+            """
             CREATE TABLE domain_stats AS
             SELECT website_host, count(*) AS products,
                    count(*) / (SELECT count(*) FROM product_facts)::DOUBLE AS catalogue_share,
@@ -285,6 +297,7 @@ def build_analytics(
             CREATE TABLE relative_launch_cohort_stats AS
             SELECT c.relative_cohort, count(*) AS products,
                    count_if(p.has_trusted_label) AS labeled_products,
+                   count_if(p.has_entity) AS entity_products,
                    min(c.first_post_id) AS minimum_first_post_id,
                    max(c.first_post_id) AS maximum_first_post_id,
                    avg(p.launch_count) AS average_launches,
@@ -299,6 +312,20 @@ def build_analytics(
         )
         connection.execute(
             """
+            CREATE TABLE relative_launch_cohort_entities AS
+            SELECT c.relative_cohort, e.entity_type, e.canonical_value,
+                   count(*) AS products,
+                   count(*) / first(s.products)::DOUBLE AS catalogue_share,
+                   count(*) / first(s.entity_products)::DOUBLE AS share_among_entity_products
+            FROM product_relative_launch_cohorts c
+            JOIN product_entities e USING (slug)
+            JOIN relative_launch_cohort_stats s USING (relative_cohort)
+            GROUP BY c.relative_cohort, e.entity_type, e.canonical_value
+            ORDER BY c.relative_cohort, products DESC, e.entity_type, e.canonical_value
+            """
+        )
+        connection.execute(
+            """
             CREATE TABLE relative_launch_cohort_labels AS
             SELECT c.relative_cohort, l.label, count(*) AS products,
                    count(*) / first(s.products)::DOUBLE AS catalogue_share,
@@ -308,6 +335,40 @@ def build_analytics(
             JOIN relative_launch_cohort_stats s USING (relative_cohort)
             GROUP BY c.relative_cohort, l.label
             ORDER BY c.relative_cohort, products DESC, l.label
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE entity_relative_trends AS
+            WITH sizes AS (
+                SELECT
+                    sum(entity_products) FILTER (WHERE relative_cohort <= 5)
+                        AS early_entity_products,
+                    sum(entity_products) FILTER (WHERE relative_cohort >= 16)
+                        AS recent_entity_products
+                FROM relative_launch_cohort_stats
+            ),
+            counts AS (
+                SELECT e.entity_type, e.canonical_value,
+                       count(*) FILTER (WHERE c.relative_cohort <= 5) AS early_products,
+                       count(*) FILTER (WHERE c.relative_cohort >= 16) AS recent_products,
+                       count(*) AS all_products
+                FROM product_entities e
+                JOIN product_relative_launch_cohorts c USING (slug)
+                GROUP BY e.entity_type, e.canonical_value
+            )
+            SELECT entity_type, canonical_value, all_products,
+                   early_products / sizes.early_entity_products::DOUBLE
+                       AS early_entity_product_share,
+                   recent_products / sizes.recent_entity_products::DOUBLE
+                       AS recent_entity_product_share,
+                   recent_entity_product_share - early_entity_product_share AS share_change,
+                   CASE WHEN early_entity_product_share = 0 THEN NULL
+                        ELSE recent_entity_product_share / early_entity_product_share END
+                       AS coverage_normalized_growth_index
+            FROM counts CROSS JOIN sizes
+            WHERE all_products >= 25
+            ORDER BY share_change DESC, entity_type, canonical_value
             """
         )
         connection.execute(
@@ -367,6 +428,20 @@ def build_analytics(
             JOIN product_categories b ON a.slug = b.slug AND a.category < b.category
             GROUP BY a.category, b.category
             ORDER BY products DESC, category_a, category_b
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE entity_cooccurrence AS
+            SELECT a.entity_type AS entity_type_a, a.canonical_value AS value_a,
+                   b.entity_type AS entity_type_b, b.canonical_value AS value_b,
+                   count(*) AS products
+            FROM product_entities a
+            JOIN product_entities b
+              ON a.slug = b.slug
+             AND (a.entity_type, a.canonical_value) < (b.entity_type, b.canonical_value)
+            GROUP BY a.entity_type, a.canonical_value, b.entity_type, b.canonical_value
+            ORDER BY products DESC, entity_type_a, value_a, entity_type_b, value_b
             """
         )
         connection.execute("CREATE UNIQUE INDEX product_facts_slug ON product_facts(slug)")
@@ -442,6 +517,14 @@ def build_analytics(
                 """
                 SELECT * FROM label_relative_trends
                 ORDER BY labeled_share_change DESC, label
+                """,
+            ),
+            "relative_entity_trends": _rows_as_dicts(
+                connection,
+                """
+                SELECT * FROM entity_relative_trends
+                ORDER BY share_change DESC, entity_type, canonical_value
+                LIMIT 50
                 """,
             ),
         }

@@ -90,7 +90,7 @@ def main() -> None:
 
     manifest_path = args.output_dir / "manifest.json"
     manifest = {
-        "source": str(args.source.resolve()),
+        "source_filename": args.source.name,
         "source_sha256": sha256_file(args.source),
         "products": len(products),
         "model": args.model,
@@ -101,6 +101,9 @@ def main() -> None:
     }
     if manifest_path.exists():
         existing = json.loads(manifest_path.read_text())
+        legacy_source = existing.pop("source", None)
+        if legacy_source is not None:
+            existing["source_filename"] = Path(legacy_source).name
         if existing != manifest:
             raise RuntimeError("existing output manifest differs; choose a new --output-dir")
     else:

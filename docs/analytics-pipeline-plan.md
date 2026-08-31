@@ -140,14 +140,29 @@ uv run --extra ner python tools/ner_enrich.py \
 
 uv run --extra ner python tools/ner_filter.py \
   --parts-dir data/ner-v1/parts \
-  --output data/ner-v1/product-entities.parquet \
+  --output data/ner-v1/product-entities-v3.parquet \
   --audit-output data/ner-v1/audit-sample.json
+
+uv run python tools/ner_audit_sample.py \
+  --entities data/ner-v1/product-entities-v3.parquet \
+  --products producthunt-full.parquet \
+  --output data/ner-v1/stratified-audit.json \
+  --per-type 10 --rare-per-type 5
 ```
 
-Measured M1 throughput was 44–45 products/second, projecting 3.5–3.6 hours for
-574,752 products. The independent filtered audit found 59/60 correct entity
-types and 58/60 clearly product-relevant spans. This measures precision, not
-recall.
+The audit generator samples each retained entity type independently, adds a
+separate low-support tail stratum, and embeds the relevant product text. Fill
+its verdict fields manually; do not tune rules on that sample and then reuse it
+as final quality evidence.
+
+The completed run processed 572,993 products with at least 40 characters of
+tagline/description text. It produced 58 atomic raw shards and 278,610 raw
+candidates. Frozen precision filter v3 retained 115,504 assignments for 75,713
+products. The untouched 100-assignment final sample included 10 random
+assignments per entity type plus up to five assignments with support of five or
+fewer products. Manual review found 97/100 correct types and 100/100 relevant
+mentions. Hardware was the weakest type at 13/15; the three failures remain in
+the audit evidence and were not used for post-audit tuning.
 
 ## Stage 4 — Confidence routing
 

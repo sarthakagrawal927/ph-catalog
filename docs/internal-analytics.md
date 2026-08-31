@@ -12,13 +12,16 @@ The first full build on August 31, 2026 contains:
 - 517,853 products with an external website, spanning 406,208 exact hosts.
 - 93,184 products with 199,654 original Product Hunt category assignments.
 - 247,788 products with 281,228 audited broad-label assignments.
+- 75,713 products with 115,504 filtered entity assignments across seven entity
+  types and 1,980 distinct type/value pairs.
 - 547,763 products connected to 709,323 launch records; 54,558 products have
   more than one mapped launch.
 - 20 equal-sized relative launch-order cohorts for 547,725 products whose first
   mapped post has a numeric ID.
 
-This baseline intentionally has no NER entities. Add them only after the full
-entity run passes a fresh audit, then rebuild with `--entities`.
+The included NER layer passed a frozen-rule 100-assignment stratified audit at
+97% type precision and 100% mention relevance. It is still extracted evidence,
+not ground truth or a complete taxonomy.
 
 ## Tables
 
@@ -39,11 +42,13 @@ Normalized evidence tables:
 Ready-to-query aggregates:
 
 - `category_stats`, `label_stats`, and `entity_stats`
+- `entity_type_stats` and `entity_cooccurrence`
 - `domain_stats` and `provenance_stats`
 - `launch_multiplicity_stats`
 - `category_cooccurrence` and `label_cooccurrence`
 - `relative_launch_cohort_stats` and `relative_launch_cohort_labels`
-- `label_relative_trends`
+- `relative_launch_cohort_entities`
+- `label_relative_trends` and `entity_relative_trends`
 
 ## Initial signals
 
@@ -65,6 +70,13 @@ Ready-to-query aggregates:
   Developer tools move from 5.74% to 11.23%. These are strong directional
   signals, but they are not calendar growth rates and may still contain
   taxonomy or source-coverage effects.
+- Among products with extracted entities, newer relative launch-order cohorts
+  mention PDF, CSV, JSON, Markdown, Python, TypeScript, Rust, and Next.js more
+  often. Older cohorts over-index on iOS, Android, JavaScript, CSS, iPad, and
+  iPhone mentions. These are shifts in catalogue copy and extraction coverage,
+  not market-share or calendar-time measurements.
+- The most common concrete entities are iOS (9,944 products), PDF (9,179),
+  Android (9,103), macOS (4,913), Windows (4,546), and iPhone (3,415).
 
 ## Example queries
 
@@ -134,5 +146,7 @@ ORDER BY launch_count DESC, name;
   not be compared across cohorts as if observation windows were equal.
 - Trusted labels are precision-oriented exploratory predictions. They do not
   yet constitute the single `primary_category` field.
+- Entity trends use only the 75,713 products with retained mentions and can be
+  affected by changing writing conventions and the model's precision filters.
 - Votes and comment counts are absent, so the mart measures supply and catalogue
   structure—not popularity or commercial success.

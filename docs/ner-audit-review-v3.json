@@ -1,0 +1,28 @@
+{
+  "method": "Manual review of every sampled assignment against the stored product name, tagline, and description",
+  "reviewer": "Codex",
+  "rules_frozen_before_sampling": true,
+  "notes": "Type precision asks whether the span belongs to the emitted entity class in context. Product relevance asks whether the mention materially describes the product, its users, integrations, inputs, outputs, compatibility, market, or product form; it does not require the entity to be the primary feature.",
+  "default_verdict": {
+    "type_correct": true,
+    "product_relevant": true,
+    "review_note": "Accepted after manual review of the product text."
+  },
+  "exceptions": {
+    "1": {
+      "type_correct": false,
+      "product_relevant": true,
+      "review_note": "Production manager is used metaphorically as the product's role, not as a professional audience entity."
+    },
+    "48": {
+      "type_correct": false,
+      "product_relevant": true,
+      "review_note": "Android is an operating system preset here, not hardware."
+    },
+    "55": {
+      "type_correct": false,
+      "product_relevant": true,
+      "review_note": "ATM modifies the card-shaped product form in this text; it is not a hardware device mention."
+    }
+  }
+}

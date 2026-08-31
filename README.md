@@ -55,6 +55,8 @@ tables plus relative launch-order cohorts. Post IDs are used only for ordering;
 they are never presented as dates. Table definitions, initial signals, and
 ready-to-run queries are in
 [`docs/internal-analytics.md`](docs/internal-analytics.md).
+The complete release-asset download, verification, and rebuild procedure is in
+[`docs/machine-handoff.md`](docs/machine-handoff.md).
 
 ## Local transformer entity extraction
 
@@ -85,17 +87,18 @@ uv run --extra ner python tools/ner_enrich.py \
 
 uv run --extra ner python tools/ner_filter.py \
   --parts-dir data/ner-v1/parts \
-  --output data/ner-v1/product-entities.parquet \
+  --output data/ner-v1/product-entities-v3.parquet \
   --audit-output data/ner-v1/audit-sample.json
 ```
 
 Each completed shard is written atomically and skipped on restart. The runner
-prints progress after every 10,000 products. In a 20,000-product M1 validation,
-the sustained rate was 44–45 products/second, projecting about 3.5–3.6 hours
-for 574,752 products. A frozen-rule audit of the second, non-overlapping batch
-found 59/60 correct entity types; 58/60 were also clearly relevant to the
-product rather than merely keyword-like copy. Run a fresh audit after changing
-the model, labels, threshold, or filters.
+prints progress after every 10,000 products. The completed M1 run processed
+572,993 eligible products in 58 shards at 34.1 products/second. Precision filter
+v3 retained 115,504 assignments across 75,713 products. A fresh 100-assignment
+type-stratified audit, including 30 rare-tail assignments, found 97% correct
+entity types and 100% product-relevant mentions. This measures precision, not
+recall. Run a fresh audit after changing the model, labels, threshold, or
+filters.
 
 ## Full backfill
 

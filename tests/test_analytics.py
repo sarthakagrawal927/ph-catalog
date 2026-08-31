@@ -12,6 +12,7 @@ from ph_catalog.database import CatalogDatabase
 def test_build_analytics_materializes_dimensions_and_relative_trends(tmp_path: Path) -> None:
     catalog_path = tmp_path / "catalog.duckdb"
     labels_path = tmp_path / "labels.parquet"
+    entities_path = tmp_path / "entities.parquet"
     output_path = tmp_path / "analytics.duckdb"
     summary_path = tmp_path / "summary.json"
 
@@ -64,6 +65,22 @@ def test_build_analytics_materializes_dimensions_and_relative_trends(tmp_path: P
         """
     )
     label_connection.execute(f"COPY labels TO '{labels_path}' (FORMAT PARQUET)")
+    label_connection.execute(
+        """
+        CREATE TABLE entities (
+            slug VARCHAR, entity_type VARCHAR, canonical_value VARCHAR,
+            source_span VARCHAR, score FLOAT, support_products BIGINT, method VARCHAR
+        )
+        """
+    )
+    label_connection.execute(
+        """
+        INSERT INTO entities VALUES
+            ('alpha', 'technology_or_tool', 'python', 'Python', 0.95, 10, 'test'),
+            ('alpha', 'operating_system', 'linux', 'Linux', 0.90, 8, 'test')
+        """
+    )
+    label_connection.execute(f"COPY entities TO '{entities_path}' (FORMAT PARQUET)")
     label_connection.close()
 
     result = build_analytics(
@@ -71,6 +88,7 @@ def test_build_analytics_materializes_dimensions_and_relative_trends(tmp_path: P
         labels_path,
         output_path,
         summary_path,
+        entities=entities_path,
     )
 
     assert result["table_rows"]["product_facts"] == 2
@@ -86,6 +104,8 @@ def test_build_analytics_materializes_dimensions_and_relative_trends(tmp_path: P
     assert connection.execute("SELECT count(*) FROM product_categories").fetchone()[0] == 2
     assert connection.execute("SELECT count(*) FROM product_launches").fetchone()[0] == 3
     assert connection.execute("SELECT count(*) FROM label_cooccurrence").fetchone()[0] == 1
+    assert connection.execute("SELECT count(*) FROM entity_cooccurrence").fetchone()[0] == 1
+    assert connection.execute("SELECT count(*) FROM entity_type_stats").fetchone()[0] == 2
     connection.close()
 
     summary = orjson.loads(summary_path.read_bytes())
