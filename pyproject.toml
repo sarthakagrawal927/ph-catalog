@@ -12,6 +12,13 @@ dependencies = [
     "selectolax>=0.3.29",
 ]
 
+[project.optional-dependencies]
+ner = [
+    "gliner==0.2.28",
+    "pyarrow>=25.0.0",
+    "torch>=2.13.0",
+]
+
 [project.scripts]
 ph-catalog = "ph_catalog.cli:main"
 

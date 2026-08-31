@@ -26,6 +26,47 @@ uv run ph-catalog init
 The database is `data/producthunt.duckdb`. DuckDB compresses its storage, and
 snapshots contain only the seven catalogue fields in Zstd-compressed Parquet.
 
+## Local transformer entity extraction
+
+The optional NER pipeline extracts concrete analytical attributes without an
+LLM API: audience roles, industries, technologies/tools, operating systems,
+external platforms mentioned in the copy, file formats, and hardware. It uses
+the Apache-2.0 [`urchade/gliner_small-v2.1`](https://huggingface.co/urchade/gliner_small-v2.1)
+zero-shot NER model. Raw inference is deliberately followed by deterministic
+precision filters; the output is an analytical aid, not ground truth.
+
+Install the isolated optional dependency set:
+
+```bash
+uv sync --extra ner
+```
+
+The compact catalogue release contains `products.csv`. Extract it with Zstd and
+run resumable 10,000-product shards:
+
+```bash
+mkdir -p data/full
+unzstd -c ph-catalog-full.tar.zst | tar -xf - -C data/full
+
+uv run --extra ner python tools/ner_enrich.py \
+  --source data/full/products.csv \
+  --output-dir data/ner-v1 \
+  --device auto --batch-size 32 --shard-size 10000
+
+uv run --extra ner python tools/ner_filter.py \
+  --parts-dir data/ner-v1/parts \
+  --output data/ner-v1/product-entities.parquet \
+  --audit-output data/ner-v1/audit-sample.json
+```
+
+Each completed shard is written atomically and skipped on restart. The runner
+prints progress after every 10,000 products. In a 20,000-product M1 validation,
+the sustained rate was 44–45 products/second, projecting about 3.5–3.6 hours
+for 574,752 products. A frozen-rule audit of the second, non-overlapping batch
+found 59/60 correct entity types; 58/60 were also clearly relevant to the
+product rather than merely keyword-like copy. Run a fresh audit after changing
+the model, labels, threshold, or filters.
+
 ## Full backfill
 
 First run a small direct-connection sample and inspect `verify` before supplying
