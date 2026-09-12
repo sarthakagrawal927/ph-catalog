@@ -26,6 +26,60 @@ uv run ph-catalog init
 The database is `data/producthunt.duckdb`. DuckDB compresses its storage, and
 snapshots contain only the seven catalogue fields in Zstd-compressed Parquet.
 
+## Sample demo (offline)
+
+The smallest reproducible run uses three synthetic HTML fixtures (fictional
+products, no real Product Hunt data) and the real product-page parser, with no
+network access. It uses a separate `data/sample.duckdb` database and refuses to
+seed an existing non-sample catalogue. It exercises the same public database API the network crawler
+uses: sitemap import → claim → parse → apply.
+
+```bash
+uv sync
+uv run ph-catalog --database data/sample.duckdb init
+uv run python tools/seed_sample.py
+uv run ph-catalog --database data/sample.duckdb status
+uv run ph-catalog --database data/sample.duckdb verify
+uv run ph-catalog --database data/sample.duckdb snapshot --output snapshots/sample.parquet
+```
+
+`tools/seed_sample.py` parses each `samples/*.html` fixture with
+`parse_product_page`, builds a `FetchResult`, and commits it through
+`CatalogDatabase.apply_results`, exactly as a fetched page would be recorded.
+Expected output from `seed_sample.py`:
+
+```json
+{
+  "fixtures": 3,
+  "inserted": 3,
+  "discovered": 3,
+  "parsed": 3,
+  "products": [
+    {"slug": "acme-toolkit", "name": "Acme Toolkit", "tagline": "Embedded tagline wins", "website_url": "https://acme.example"},
+    {"slug": "pixelboard", "name": "Pixelboard", "tagline": "Draw together", "website_url": null},
+    {"slug": "quantify", "name": "Quantify", "tagline": "Simple local metrics", "website_url": "https://quantify.example"}
+  ]
+}
+```
+
+`verify` reports `fetched_completeness: 1.0` and `reachable_parse_success: 1.0`
+with zero duplicates. The snapshot is a Zstd-compressed Parquet of the seven
+catalogue fields; round-trip it into a fresh database with:
+
+```bash
+uv run ph-catalog --database /tmp/demo.duckdb init
+uv run ph-catalog --database /tmp/demo.duckdb restore-snapshot --input snapshots/sample.parquet
+uv run ph-catalog --database /tmp/demo.duckdb status
+```
+
+### Sample data rights
+
+The `samples/*.html` fixtures are original, fictional product pages written for
+this repository. They contain no real Product Hunt content, slugs, or maker
+data, so there are no third-party redistribution rights to clear. The generated
+DuckDB, Parquet snapshot, and compact archive are derived solely from these
+synthetic fixtures and are not committed to Git (see `.gitignore`).
+
 ## Catalogue intelligence prototype
 
 The dependency-free static prototype under [`site/`](site/) presents the current
